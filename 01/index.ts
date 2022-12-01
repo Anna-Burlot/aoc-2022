@@ -1,7 +1,7 @@
 const input = await Deno.readTextFile('./input.txt');
 const testInput = await Deno.readTextFile('./testInput.txt');
 
-export const getElfToAsk = (input: string) => {
+export const getTotalCaloriesToThreeElves = (input: string) => {
   // divide by elf using /n/n
   const elvesArray = input.split('\n\n');
 
@@ -13,14 +13,18 @@ export const getElfToAsk = (input: string) => {
       .reduce((prevValue, currValue) => prevValue + currValue);
   });
 
-  // compare between elves
-  const elfWithMoreCalories = Math.max(...totalCaloriesByElf);
+  // get top three elves and get total
+  const firstElfWithMoreCalories = totalCaloriesByElf
+    .sort((a, b) => b - a)
+    .slice(0, 3)
+    .reduce((prevValue, currValue) => prevValue + currValue);
 
-  // return elf with more calories
-  return elfWithMoreCalories;
+  // return total calories of top three elves
+  return firstElfWithMoreCalories;
 };
 
 // test
-console.log(getElfToAsk(testInput) === 24000);
+console.log(getTotalCaloriesToThreeElves(testInput) === 45000);
 
-console.log(getElfToAsk(input));
+// result
+console.log(getTotalCaloriesToThreeElves(input));
