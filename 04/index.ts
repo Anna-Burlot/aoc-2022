@@ -1,39 +1,28 @@
 const input = await Deno.readTextFile('./input.txt');
 const testInput = await Deno.readTextFile('./testInput.txt');
 
-// const getRange = (start: number, end: number) => {
-//   const length = end - start + 1;
-//   return Array.from({ length }, (_, i) => start + i);
-// };
+const getRange = (start: number, end: number) => {
+  const length = end - start + 1;
+  return Array.from({ length }, (_, i) => start + i);
+};
 
 const getTotalFullyContainedRanges = (input: string): number => {
   const pairs = input.split('\n');
 
-  const fullyContainedRanges = pairs.filter((pair) => {
-    const rangesStartAndEnd = pair.split(',').map((range) => {
+  const overlappingRanges = pairs.filter((pair) => {
+    const ranges = pair.split(',').map((range) => {
       const [startRange, endRange] = range
         .split('-')
         .map((item) => parseInt(item));
 
-      return [startRange, endRange];
+      return getRange(startRange, endRange);
     });
 
-    const isSecondRangeContainedInFirst =
-      rangesStartAndEnd[0][0] <= rangesStartAndEnd[1][0] &&
-      rangesStartAndEnd[0][1] >= rangesStartAndEnd[1][1];
-
-    const isFirstRangeContainedInSecond =
-      rangesStartAndEnd[0][0] >= rangesStartAndEnd[1][0] &&
-      rangesStartAndEnd[0][1] <= rangesStartAndEnd[1][1];
-
-    if (isSecondRangeContainedInFirst || isFirstRangeContainedInSecond) {
-      return true;
-    }
-    return false;
+    return ranges[0].find((number) => ranges[1].includes(number));
   });
 
-  return fullyContainedRanges.length;
+  return overlappingRanges.length;
 };
 
 console.log(getTotalFullyContainedRanges(input));
-console.log(getTotalFullyContainedRanges(testInput) === 2);
+console.log(getTotalFullyContainedRanges(testInput) === 4);
