@@ -44,7 +44,7 @@ const executeInstructions = (instructions: string[], stacks: string[][]) => {
       }
       // case target column
       if (index === targetColumn - 1) {
-        newStack = [...cratesToMove.reverse(), ...newStack];
+        newStack = [...cratesToMove, ...newStack];
       }
       return newStack;
     });
@@ -75,4 +75,4 @@ const getTopCrateOfEachStack = (input: string): string => {
 };
 
 console.log(getTopCrateOfEachStack(input));
-console.log(getTopCrateOfEachStack(testInput) === 'CMZ');
+console.log(getTopCrateOfEachStack(testInput) === 'MCD');
