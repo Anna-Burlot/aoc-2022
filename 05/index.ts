@@ -14,6 +14,42 @@ const organizeByColumns = (rowsAndColumns: string[][]): string[][] => {
     newTable = [...newTable, column];
   }
 
+  const removeEmptySpaces = newTable.map((column) =>
+    column.filter((item) => item.length > 0)
+  );
+
+  return removeEmptySpaces;
+};
+
+const readInstructions = (instruction: string) => {
+  const [amountToMove, originColumn, targetColumn] = instruction
+    .match(/^\d+|\d+\b|\d+(?=\w)/g)!
+    .map((number) => parseInt(number));
+  return { amountToMove, originColumn, targetColumn };
+};
+
+const executeInstructions = (instructions: string[], stacks: string[][]) => {
+  let newTable: string[][] = [...stacks];
+
+  instructions.map((instruction) => {
+    const { amountToMove, originColumn, targetColumn } =
+      readInstructions(instruction);
+    const cratesToMove = newTable[originColumn - 1].slice(0, amountToMove);
+
+    newTable = newTable.map((stack, index) => {
+      let newStack = [...stack];
+      // case origin column
+      if (index === originColumn - 1) {
+        newStack = newStack.filter((crave, index) => index > amountToMove - 1);
+      }
+      // case target column
+      if (index === targetColumn - 1) {
+        newStack = [...cratesToMove.reverse(), ...newStack];
+      }
+      return newStack;
+    });
+  });
+
   return newTable;
 };
 
@@ -30,11 +66,13 @@ const getTopCrateOfEachStack = (input: string): string => {
 
   const organizedByColumn = organizeByColumns(divideRowsByColumns);
 
-  console.log(organizedByColumn);
+  const instructionsArray = instructions.split('\n');
+  const finalStacks = executeInstructions(instructionsArray, organizedByColumn);
 
-  return '';
+  const topOfEachStack = finalStacks.map((stack) => stack[0]).join('');
+
+  return topOfEachStack;
 };
 
-getTopCrateOfEachStack(testInput);
-// console.log(getTopCrateOfEachStack(testInput));
-// console.log(getTopCrateOfEachStack(testInput) === 'CMZ');
+console.log(getTopCrateOfEachStack(input));
+console.log(getTopCrateOfEachStack(testInput) === 'CMZ');
