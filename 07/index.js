@@ -58,7 +58,8 @@ const getFileSystem = (input) => {
             ];
           }
           currentDirectory = currentDirectory.children.find(
-            (folder) => folder.isDirectory && folder.name === directoryName
+            (directory) =>
+              directory.isDirectory && directory.name === directoryName
           );
         } else {
           // there is no parent directory yet, create /
@@ -116,27 +117,63 @@ const getFileSystem = (input) => {
   return fileSystem;
 };
 
-const getAllFolders = (folder) =>
-  folder.children.reduce((prev, curr) => {
-    if (!curr.size) return [...prev, curr, ...getAllFolders(curr)];
+const getAllDirectories = (directory) =>
+  directory.children.reduce((prev, curr) => {
+    if (!curr.size) return [...prev, curr, ...getAllDirectories(curr)];
     return prev;
   }, []);
 
-const getAllFoldersSize = (folder) =>
-  folder.children.reduce(
+const getAllDirectoriesSize = (directory) =>
+  directory.children.reduce(
     (prev, curr) =>
-      prev + (curr.size ? Number(curr.size) : getAllFoldersSize(curr)),
+      prev + (curr.size ? Number(curr.size) : getAllDirectoriesSize(curr)),
     0
   );
 
 const getSumOfDirectoriesSize = (input) => {
-  return getAllFolders(getFileSystem(input))
-    .map((folder) => getAllFoldersSize(folder))
+  return getAllDirectories(getFileSystem(input))
+    .map((directory) => getAllDirectoriesSize(directory))
     .filter((size) => size <= 100000)
     .reduce((prev, curr) => prev + curr);
 };
 
-console.log(getSumOfDirectoriesSize(input));
+const getTotalSizeOfirectoryToDelete = (input) => {
+  const totalSpace = 70000000;
+  const unusedSpaceNeeded = 30000000;
+
+  const fileSystem = getFileSystem(input);
+  const allDirectories = getAllDirectories(fileSystem); // a, e, d
+  const allDirectoriesSize = allDirectories
+    .map((directory) => getAllDirectoriesSize(directory))
+    .reduce((prev, curr) => prev + curr);
+  const allRootFilesSize = fileSystem.children
+    .filter((child) => !child.isDirectory)
+    .map((child) => child.size)
+    .reduce((prev, curr) => prev + curr);
+  const rootDirectorySize = allDirectoriesSize + allRootFilesSize;
+
+  const currentAvailableSpace = totalSpace - rootDirectorySize;
+  const spaceToDelete = unusedSpaceNeeded - currentAvailableSpace;
+
+  const directoriesToDelete = allDirectories
+    .map((directory) => getAllDirectoriesSize(directory))
+    .filter((size) => size >= spaceToDelete);
+
+  const directoryToDelete = directoriesToDelete.length
+    ? Math.min(...directoriesToDelete)
+    : rootDirectorySize > spaceToDelete
+    ? rootDirectorySize
+    : [];
+
+  return directoryToDelete;
+};
+
+console.log(getTotalSizeOfirectoryToDelete(input));
+
+// 14848514 + 8504156 + 94 853 + 24 933 642 + 584 = 48 381 749
+// a = 29116 + 2557 + 62596 + e (584) = 94 853
+// d = 4060174 + 8033020 + 5626152 + 7214296 = 24 933 642
+// e = 584
 
 // - / (dir)
 //   - a (dir)
